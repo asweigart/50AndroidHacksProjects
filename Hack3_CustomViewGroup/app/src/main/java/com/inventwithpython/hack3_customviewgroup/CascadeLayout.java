@@ -65,13 +65,7 @@ public class CascadeLayout extends ViewGroup {
 
         public LayoutParams(Context context, AttributeSet attrs) {
             super(context, attrs);
-        }
-        public LayoutParams(int w, int h) {
-            super(w, h);
-        }
 
-        public LayoutParams(Context context, AttributeSet attrs) {
-            super(context, attrs);
             TypedArray a = context.obtainStyledAttributes(attrs,
                     R.styleable.CascadeLayout_LayoutParams);
             try {
@@ -80,6 +74,9 @@ public class CascadeLayout extends ViewGroup {
             } finally {
                 a.recycle();
             }
+        }
+        public LayoutParams(int w, int h) {
+            super(w, h);
         }
     }
 }
