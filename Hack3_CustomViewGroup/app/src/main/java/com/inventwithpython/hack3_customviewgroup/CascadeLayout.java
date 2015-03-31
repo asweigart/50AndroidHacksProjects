@@ -13,15 +13,28 @@ public class CascadeLayout extends ViewGroup {
 
     public CascadeLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        // NOTE: In this ctor, we set the horizontal and vertical spacing based on the values
+        // (if they exist) in attrs. If they don't exist there, the default values in dimens.xml
+        // are used.
+
+        // NOTE: R.styleable.CascadeLayout comes from the <declare-styleable name="CascadeLayout">
+        // tag in attrs.xml.
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CascadeLayout);
+
         try {
-            mHorizontalSpacing = a.getDimensionPixelSize(
-                    R.styleable.CascadeLayout_horizontal_spacing,
+            // NOTE: It's weird that it is "R.styleable.CascadeLayout_horizontal_spacing" instead
+            // of "R.styleable.CascadeLayout.horizontal_spacing". I think there can only be one
+            // level underneath R.styleable, so what would be "." is changed to "_".
+            // TODO: I don't know if this convention is done elsewhere.
+            mHorizontalSpacing = a.getDimensionPixelSize(R.styleable.CascadeLayout_horizontal_spacing,
                     getResources().getDimensionPixelSize(R.dimen.cascade_horizontal_spacing));
-            mVerticalSpacing = a.getDimensionPixelSize(
-                    R.styleable.CascadeLayout_vertical_spacing,
+            mVerticalSpacing = a.getDimensionPixelSize(R.styleable.CascadeLayout_vertical_spacing,
                     getResources().getDimensionPixelSize(R.dimen.cascade_vertical_spacing));
+
         } finally {
+            // NOTE: The TypedArray object returned by obtainStyledAttributes() needs recycle()
+            // called on it. I don't know if it causes a memory leak if this doesn't happen.
             a.recycle();
         }
     }
@@ -34,7 +47,7 @@ public class CascadeLayout extends ViewGroup {
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
             measureChild(child, widthMeasureSpec, heightMeasureSpec);
-            LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            LayoutParams lp = (CascadeLayoutParams) child.getLayoutParams();
             width = getPaddingLeft() + mHorizontalSpacing * i;
 
             lp.x = width;
@@ -52,30 +65,36 @@ public class CascadeLayout extends ViewGroup {
         final int count = getChildCount();
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
-            LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            LayoutParams lp = (CascadeLayoutParams) child.getLayoutParams(); // NOTE: I got rid of the casting that was on this line in the book because it's redundant. The child's layout is already a CascadeLayoutObject.
+            // NOTE: layout() assigns size & position values. The parameters are left, top, right, bottom.
             child.layout(lp.x, lp.y, lp.x + child.getMeasuredWidth(), lp.y + child.getMeasuredHeight());
         }
     }
 
 
 
-    public static class LayoutParams extends ViewGroup.LayoutParams {
+    public static class CascadeLayoutParams extends ViewGroup.LayoutParams {
+        // NOTE: Renamed the book's LayoutParams to CascadeLayoutParams
+
+        // NOTE: This custom class will hold the x, y position of each child view in this
+        // cascade layout view. The ViewGroup.LayoutParams class (which, btw, is where the
+        // FILL_PARENT and WRAP_CONTENT constants are defined). The View.getLayoutParams() method
+        // returns a ViewGroup.LayoutParams object, which only has width and height info.
+        // We extend this class to add x, y info as well.
         int x;
         int y;
 
-        public LayoutParams(Context context, AttributeSet attrs) {
+        public CascadeLayoutParams(Context context, AttributeSet attrs) {
             super(context, attrs);
 
-            TypedArray a = context.obtainStyledAttributes(attrs,
-                    R.styleable.CascadeLayout_LayoutParams);
+            //TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CascadeLayout_LayoutParams);
             try {
-                verticalSpacing = a.getDimensionPixelSize(R.styleable.CascadeLayout_LayoutParams_layout_vertical_spacing,
-                        -1);
+                //verticalSpacing = a.getDimensionPixelSize(R.styleable.CascadeLayout_LayoutParams_layout_vertical_spacing, -1);
             } finally {
-                a.recycle();
+                //a.recycle();
             }
         }
-        public LayoutParams(int w, int h) {
+        public CascadeLayoutParams(int w, int h) {
             super(w, h);
         }
     }

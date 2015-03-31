@@ -1,0 +1,4 @@
+The following projects in this repo are incomplete:
+
+Hack3_CustomViewGroup
+
