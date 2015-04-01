@@ -43,17 +43,24 @@ public class CascadeLayout extends ViewGroup {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = 0;
         int height = getPaddingTop();
+        int verticalSpacing = mVerticalSpacing;
+
         final int count = getChildCount();
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
             measureChild(child, widthMeasureSpec, heightMeasureSpec);
-            LayoutParams lp = (CascadeLayoutParams) child.getLayoutParams();
+            LayoutParams lp = (LayoutParams) child.getLayoutParams();
+
+            if (lp.verticalSpacing >= 0) {
+                verticalSpacing = lp.verticalSpacing;
+            }
+
             width = getPaddingLeft() + mHorizontalSpacing * i;
 
             lp.x = width;
             lp.y = height;
             width += child.getMeasuredWidth();
-            height += mVerticalSpacing;
+            height += verticalSpacing;
         }
         width += getPaddingRight();
         height += getChildAt(getChildCount() - 1).getMeasuredHeight() + getPaddingBottom();
@@ -65,7 +72,7 @@ public class CascadeLayout extends ViewGroup {
         final int count = getChildCount();
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
-            LayoutParams lp = (CascadeLayoutParams) child.getLayoutParams(); // NOTE: I got rid of the casting that was on this line in the book because it's redundant. The child's layout is already a CascadeLayoutObject.
+            LayoutParams lp = (LayoutParams) child.getLayoutParams();
             // NOTE: layout() assigns size & position values. The parameters are left, top, right, bottom.
             child.layout(lp.x, lp.y, lp.x + child.getMeasuredWidth(), lp.y + child.getMeasuredHeight());
         }
@@ -73,9 +80,7 @@ public class CascadeLayout extends ViewGroup {
 
 
 
-    public static class CascadeLayoutParams extends ViewGroup.LayoutParams {
-        // NOTE: Renamed the book's LayoutParams to CascadeLayoutParams
-
+    public static class LayoutParams extends ViewGroup.LayoutParams {
         // NOTE: This custom class will hold the x, y position of each child view in this
         // cascade layout view. The ViewGroup.LayoutParams class (which, btw, is where the
         // FILL_PARENT and WRAP_CONTENT constants are defined). The View.getLayoutParams() method
@@ -83,19 +88,22 @@ public class CascadeLayout extends ViewGroup {
         // We extend this class to add x, y info as well.
         int x;
         int y;
+        int verticalSpacing;
 
-        public CascadeLayoutParams(Context context, AttributeSet attrs) {
+        public LayoutParams(Context context, AttributeSet attrs) {
             super(context, attrs);
-
-            //TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CascadeLayout_LayoutParams);
+            TypedArray a = context.obtainStyledAttributes(attrs,
+                    R.styleable.CascadeLayout_LayoutParams);
             try {
-                //verticalSpacing = a.getDimensionPixelSize(R.styleable.CascadeLayout_LayoutParams_layout_vertical_spacing, -1);
+                verticalSpacing = a.getDimensionPixelSize(R.styleable.CascadeLayout_LayoutParams_layout_vertical_spacing, -1);
             } finally {
-                //a.recycle();
+                a.recycle();
             }
         }
-        public CascadeLayoutParams(int w, int h) {
+
+        public LayoutParams(int w, int h) {
             super(w, h);
         }
+
     }
 }
